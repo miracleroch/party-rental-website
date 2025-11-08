@@ -405,8 +405,8 @@ const PartyRentalApp = () => {
         <div className="bg-white rounded-lg shadow-lg p-4 md:p-6 mb-6">
           <div className="flex flex-wrap justify-between items-center gap-4">
             <div>
-              <h1 className="text-3xl md:text-4xl font-bold text-purple-600 mb-2">Party Rentals</h1>
-              <p className="text-sm md:text-base text-gray-600">Everything you need for your perfect party</p>
+              <h1 className="text-3xl md:text-4xl font-bold text-purple-600 mb-2">Mirest Rentals</h1>
+              <p className="text-sm md:text-base text-gray-600">Everything you need for your perfect party within Enugu and Environs</p>
             </div>
             <button
               onClick={() => setIsAdmin(true)}
