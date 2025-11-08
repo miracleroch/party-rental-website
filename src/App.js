@@ -1,10 +1,12 @@
 import React, { useState, useEffect } from 'react';
+// eslint-disable-next-line no-unused-vars
 import { ShoppingCart, Trash2, Plus, Minus, Package, DollarSign, MapPin, Calendar, User, LogIn, LogOut } from 'lucide-react';
 
 const PartyRentalApp = () => {
   const [isAdmin, setIsAdmin] = useState(false);
   const [cart, setCart] = useState([]);
   const [orders, setOrders] = useState([]);
+  // eslint-disable-next-line no-unused-vars
   const [inventory, setInventory] = useState([
     { id: 1, name: 'Folding Chair', price: 5, deposit: 10, image: '🪑', stock: 50 },
     { id: 2, name: 'Canopy Tent (10x10)', price: 50, deposit: 100, image: '⛺', stock: 10 },
