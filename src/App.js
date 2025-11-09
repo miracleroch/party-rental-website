@@ -1,5 +1,7 @@
 import React, { useState, useEffect } from 'react';
 import { ShoppingCart, Trash2, Plus, Minus, Package, MapPin, Calendar, User, LogIn, LogOut } from 'lucide-react';
+import { db } from './firebase';
+import { collection, addDoc, getDocs, doc, updateDoc, query, orderBy } from 'firebase/firestore';
 
 const PartyRentalApp = () => {
   const [isAdmin, setIsAdmin] = useState(false);
@@ -35,28 +37,16 @@ const PartyRentalApp = () => {
   const loadOrders = async () => {
     setLoading(true);
     try {
-      if (typeof window !== 'undefined' && window.storage) {
-        const result = await window.storage.list('order:', true);
-        if (result && result.keys) {
-          const orderPromises = result.keys.map(key => 
-            window.storage.get(key, true)
-          );
-          const orderResults = await Promise.all(orderPromises);
-          const loadedOrders = orderResults
-            .filter(r => r && r.value)
-            .map(r => JSON.parse(r.value))
-            .sort((a, b) => new Date(b.timestamp) - new Date(a.timestamp));
-          setOrders(loadedOrders);
-        }
-      } else {
-        const stored = localStorage.getItem('orders');
-        if (stored) {
-          setOrders(JSON.parse(stored));
-        }
-      }
+      const ordersQuery = query(collection(db, 'orders'), orderBy('timestamp', 'desc'));
+      const querySnapshot = await getDocs(ordersQuery);
+      const loadedOrders = [];
+      querySnapshot.forEach((doc) => {
+        loadedOrders.push({ firebaseId: doc.id, ...doc.data() });
+      });
+      setOrders(loadedOrders);
     } catch (error) {
-      console.log('No orders yet');
-      setOrders([]);
+      console.error('Error loading orders:', error);
+      alert('Error loading orders. Check console for details.');
     }
     setLoading(false);
   };
@@ -114,15 +104,7 @@ const PartyRentalApp = () => {
     };
 
     try {
-      if (typeof window !== 'undefined' && window.storage) {
-        await window.storage.set(`order:${order.id}`, JSON.stringify(order), true);
-      } else {
-        const stored = localStorage.getItem('orders');
-        const allOrders = stored ? JSON.parse(stored) : [];
-        allOrders.push(order);
-        localStorage.setItem('orders', JSON.stringify(allOrders));
-      }
-      
+      await addDoc(collection(db, 'orders'), order);
       alert(`Order confirmed! Order ID: ${order.id}\n\nTotal: $${total.toFixed(2)}\nDeposit (Refundable): $${deposit.toFixed(2)}`);
       setCart([]);
       setShowCheckout(false);
@@ -135,27 +117,20 @@ const PartyRentalApp = () => {
         deliveryTime: ''
       });
     } catch (error) {
-      alert('Error placing order. Please try again.');
+      console.error('Error placing order:', error);
+      alert('Error placing order. Please check your internet connection and try again.');
     }
     setLoading(false);
   };
 
-  const updateOrderStatus = async (orderId, newStatus) => {
-    const order = orders.find(o => o.id === orderId);
-    if (order) {
-      const updatedOrder = { ...order, status: newStatus };
-      const updatedOrders = orders.map(o => o.id === orderId ? updatedOrder : o);
-      
-      try {
-        if (typeof window !== 'undefined' && window.storage) {
-          await window.storage.set(`order:${orderId}`, JSON.stringify(updatedOrder), true);
-        } else {
-          localStorage.setItem('orders', JSON.stringify(updatedOrders));
-        }
-        setOrders(updatedOrders);
-      } catch (error) {
-        alert('Error updating order status');
-      }
+  const updateOrderStatus = async (firebaseId, newStatus) => {
+    try {
+      const orderRef = doc(db, 'orders', firebaseId);
+      await updateDoc(orderRef, { status: newStatus });
+      setOrders(orders.map(o => o.firebaseId === firebaseId ? { ...o, status: newStatus } : o));
+    } catch (error) {
+      console.error('Error updating order:', error);
+      alert('Error updating order status');
     }
   };
 
@@ -199,7 +174,7 @@ const PartyRentalApp = () => {
             ) : (
               <div className="space-y-4">
                 {orders.map(order => (
-                  <div key={order.id} className="border-2 border-purple-200 rounded-lg p-4">
+                  <div key={order.firebaseId} className="border-2 border-purple-200 rounded-lg p-4">
                     <div className="flex flex-wrap justify-between items-start gap-4 mb-4">
                       <div>
                         <h3 className="text-base md:text-lg font-bold text-gray-800">{order.id}</h3>
@@ -246,7 +221,7 @@ const PartyRentalApp = () => {
                     <div className="flex flex-wrap gap-2">
                       <select
                         value={order.status}
-                        onChange={(e) => updateOrderStatus(order.id, e.target.value)}
+                        onChange={(e) => updateOrderStatus(order.firebaseId, e.target.value)}
                         className="flex-1 min-w-[150px] px-3 py-2 text-sm border-2 border-purple-300 rounded-lg focus:outline-none focus:border-purple-500"
                       >
                         <option>Pending</option>
@@ -406,7 +381,7 @@ const PartyRentalApp = () => {
           <div className="flex flex-wrap justify-between items-center gap-4">
             <div>
               <h1 className="text-3xl md:text-4xl font-bold text-purple-600 mb-2">Mirest Rentals</h1>
-              <p className="text-sm md:text-base text-gray-600">Everything you need for your perfect party within Enugu and Environs</p>
+              <p className="text-sm md:text-base text-gray-600">Everything you need for your perfect party</p>
             </div>
             <button
               onClick={() => setIsAdmin(true)}
