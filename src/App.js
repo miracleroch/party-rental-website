@@ -8,14 +8,14 @@ const PartyRentalApp = () => {
   const [cart, setCart] = useState([]);
   const [orders, setOrders] = useState([]);
   const [inventory] = useState([
-    { id: 1, name: 'Folding Chair', price: 5, deposit: 10, image: '🪑', stock: 50 },
-    { id: 2, name: 'Canopy Tent (10x10)', price: 50, deposit: 100, image: '⛺', stock: 10 },
-    { id: 3, name: 'Round Table', price: 15, deposit: 30, image: '🪵', stock: 20 },
-    { id: 4, name: 'Dinner Plates (Set of 10)', price: 8, deposit: 15, image: '🍽️', stock: 30 },
-    { id: 5, name: 'Cutlery Set (10 pieces)', price: 6, deposit: 10, image: '🍴', stock: 40 },
-    { id: 6, name: 'Serving Bowls (Set of 5)', price: 10, deposit: 20, image: '🥣', stock: 25 },
-    { id: 7, name: 'Beverage Dispenser', price: 12, deposit: 25, image: '🥤', stock: 15 },
-    { id: 8, name: 'Party Lights String', price: 20, deposit: 30, image: '💡', stock: 20 },
+    { id: 1, name: 'Folding Chair', price: 3750, deposit: 7500, image: '🪑', stock: 50 },
+    { id: 2, name: 'Canopy Tent (10x10)', price: 37500, deposit: 75000, image: '⛺', stock: 10 },
+    { id: 3, name: 'Round Table', price: 11250, deposit: 22500, image: '🪵', stock: 20 },
+    { id: 4, name: 'Dinner Plates (Set of 10)', price: 6000, deposit: 11250, image: '🍽️', stock: 30 },
+    { id: 5, name: 'Cutlery Set (10 pieces)', price: 4500, deposit: 7500, image: '🍴', stock: 40 },
+    { id: 6, name: 'Serving Bowls (Set of 5)', price: 7500, deposit: 15000, image: '🥣', stock: 25 },
+    { id: 7, name: 'Beverage Dispenser', price: 9000, deposit: 18750, image: '🥤', stock: 15 },
+    { id: 8, name: 'Party Lights String', price: 15000, deposit: 22500, image: '💡', stock: 20 },
   ]);
   const [checkoutData, setCheckoutData] = useState({
     name: '',
@@ -105,7 +105,7 @@ const PartyRentalApp = () => {
 
     try {
       await addDoc(collection(db, 'orders'), order);
-      alert(`Order confirmed! Order ID: ${order.id}\n\nTotal: $${total.toFixed(2)}\nDeposit (Refundable): $${deposit.toFixed(2)}`);
+      alert(`Order confirmed! Order ID: ${order.id}\n\nTotal: ₦${total.toLocaleString()}\nDeposit (Refundable): ₦${deposit.toLocaleString()}`);
       setCart([]);
       setShowCheckout(false);
       setCheckoutData({
@@ -269,22 +269,22 @@ const PartyRentalApp = () => {
                 {cart.map(item => (
                   <div key={item.id} className="flex justify-between text-sm">
                     <span className="break-words pr-2">{item.image} {item.name} × {item.quantity}</span>
-                    <span className="font-medium whitespace-nowrap">${(item.price * item.quantity).toFixed(2)}</span>
+                    <span className="font-medium whitespace-nowrap">₦{(item.price * item.quantity).toLocaleString()}</span>
                   </div>
                 ))}
               </div>
               <div className="border-t-2 border-purple-200 mt-2 pt-2 space-y-1">
                 <div className="flex justify-between font-semibold text-sm md:text-base">
                   <span>Subtotal:</span>
-                  <span>${subtotal.toFixed(2)}</span>
+                  <span>₦{subtotal.toLocaleString()}</span>
                 </div>
                 <div className="flex justify-between text-xs md:text-sm text-gray-600">
                   <span>Refundable Deposit:</span>
-                  <span>${deposit.toFixed(2)}</span>
+                  <span>₦{deposit.toLocaleString()}</span>
                 </div>
                 <div className="flex justify-between text-lg md:text-xl font-bold text-purple-600 mt-2">
                   <span>Total:</span>
-                  <span>${total.toFixed(2)}</span>
+                  <span>₦{total.toLocaleString()}</span>
                 </div>
               </div>
             </div>
@@ -361,11 +361,11 @@ const PartyRentalApp = () => {
                 disabled={loading}
                 className="w-full py-3 bg-gradient-to-r from-purple-600 to-blue-600 text-white font-bold text-sm md:text-base rounded-lg hover:from-purple-700 hover:to-blue-700 disabled:opacity-50 transition"
               >
-                {loading ? 'Processing...' : `Pay $${total.toFixed(2)} & Confirm Order`}
+                {loading ? 'Processing...' : `Pay ₦${total.toLocaleString()} & Confirm Order`}
               </button>
 
               <p className="text-xs md:text-sm text-gray-600 text-center">
-                *Deposit of ${deposit.toFixed(2)} will be refunded upon return of items in good condition
+                *Deposit of ₦{deposit.toLocaleString()} will be refunded upon return of items in good condition
               </p>
             </div>
           </div>
@@ -405,8 +405,8 @@ const PartyRentalApp = () => {
                     <p className="text-xs md:text-sm text-gray-600 mb-2">In stock: {item.stock}</p>
                     <div className="flex justify-between items-center mb-3">
                       <div>
-                        <p className="text-base md:text-lg font-bold text-purple-600">${item.price}/day</p>
-                        <p className="text-xs text-gray-500">+${item.deposit} deposit</p>
+                        <p className="text-base md:text-lg font-bold text-purple-600">₦{item.price.toLocaleString()}/day</p>
+                        <p className="text-xs text-gray-500">+₦{item.deposit.toLocaleString()} deposit</p>
                       </div>
                     </div>
                     <button
@@ -440,7 +440,7 @@ const PartyRentalApp = () => {
                             <p className="font-semibold text-sm md:text-base text-gray-800 break-words">
                               {item.image} {item.name}
                             </p>
-                            <p className="text-xs md:text-sm text-gray-600">${item.price}/day + ${item.deposit} deposit</p>
+                            <p className="text-xs md:text-sm text-gray-600">₦{item.price.toLocaleString()}/day + ₦{item.deposit.toLocaleString()} deposit</p>
                           </div>
                           <button
                             onClick={() => removeFromCart(item.id)}
@@ -464,7 +464,7 @@ const PartyRentalApp = () => {
                             <Plus className="w-4 h-4" />
                           </button>
                           <span className="ml-auto font-bold text-sm md:text-base text-purple-600 whitespace-nowrap">
-                            ${((item.price + item.deposit) * item.quantity).toFixed(2)}
+                            ₦{((item.price + item.deposit) * item.quantity).toLocaleString()}
                           </span>
                         </div>
                       </div>
@@ -474,15 +474,15 @@ const PartyRentalApp = () => {
                   <div className="border-t-2 border-purple-200 pt-4 space-y-2">
                     <div className="flex justify-between text-sm md:text-base text-gray-700">
                       <span>Subtotal:</span>
-                      <span className="font-semibold">${subtotal.toFixed(2)}</span>
+                      <span className="font-semibold">₦{subtotal.toLocaleString()}</span>
                     </div>
                     <div className="flex justify-between text-sm md:text-base text-gray-700">
                       <span>Deposit (Refundable):</span>
-                      <span className="font-semibold">${deposit.toFixed(2)}</span>
+                      <span className="font-semibold">₦{deposit.toLocaleString()}</span>
                     </div>
                     <div className="flex justify-between text-lg md:text-xl font-bold text-purple-600">
                       <span>Total:</span>
-                      <span>${total.toFixed(2)}</span>
+                      <span>₦{total.toLocaleString()}</span>
                     </div>
                   </div>
 
